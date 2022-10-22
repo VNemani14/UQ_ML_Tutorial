@@ -33,19 +33,12 @@ def math_fun(x):
 
 ### Prepare the training and test data for training the ML model
 def make_data():
-    lb = -3
-    ub = 3
-
     mean_c1 = (2, 1.5)
-    vars=(0.4, 0.4)
-    cov_c1=np.diag(vars)
-
     cov_c1 = [[0.3, 0], [0, 0.4]]
     c1_sample_no = 500
     x_c1 = np.random.multivariate_normal(mean_c1, cov_c1, (c1_sample_no, 1)).reshape(c1_sample_no, 2)
 
     mean_c2 = (-2.5, -2.5)
-    cov_c2=np.diag(vars)
     cov_c2 = [[0.3, -0.2], [-0.2, 0.8]]
     c2_sample_no = 500
     x_c2 = np.random.multivariate_normal(mean_c2, cov_c2, (c2_sample_no, 1)).reshape(c2_sample_no, 2)
@@ -53,23 +46,11 @@ def make_data():
     mean_ood = (-7, -7.5)
     cov_ood = [[0.2, 0], [0, 0.2]]
     ood_sample_no = 200
-    x_ood = np.random.multivariate_normal(mean_ood, cov_ood, (ood_sample_no, 1)).reshape(ood_sample_no, 2)
-
-    space = np.linspace(lb - 1, ub+1, 20)
-    x1_test, x2_test = np.meshgrid(space, space)
-
-    x_test = np.concatenate((x1_test.reshape(-1, 1), x2_test.reshape(-1, 1)), axis = 1)  
+    x_ood = np.random.multivariate_normal(mean_ood, cov_ood, (ood_sample_no, 1)).reshape(ood_sample_no, 2) 
 
     y_c1 = math_fun(x_c1).reshape(-1, 1)
     y_c2 = math_fun(x_c2).reshape(-1, 1)
     y_ood = math_fun(x_ood).reshape(-1, 1)
-    y_test = math_fun(x_test).reshape(-1, 1)
-
-    x = np.concatenate((x_c1, x_c2, x_ood, x_test), axis = 0)
-    y = np.concatenate((y_c1, y_c2, y_ood, y_test), axis = 0).flatten()
-
-    x_no_ood = np.concatenate((x_c1, x_c2, x_test), axis = 0)
-    y_no_ood = np.concatenate((y_c1, y_c2, y_test), axis = 0).flatten()
 
     ## Create train and test data for each cluster of data
     random_state = 1
