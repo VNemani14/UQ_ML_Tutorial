@@ -3,6 +3,7 @@ import scipy
 import numpy as np
 from sklearn.model_selection import train_test_split
 import seaborn as sns
+from matplotlib.patches import Rectangle
 
 sns.set(font_scale=1.6)
 sns.set_theme(style='white')
@@ -49,10 +50,10 @@ def make_data():
 
     plt.figure(figsize=(10, 10))
     plt.scatter(x_c1_train[:, 0], x_c1_train[:, 1], color = 'red', marker = '+', label='1st cluster train')
-    plt.scatter(x_c1_test[:, 0], x_c1_test[:, 1], color = 'red', marker = 's', label='1st cluster test')
+    plt.scatter(x_c1_test[:, 0], x_c1_test[:, 1], color = 'red', marker = 'o', s = 8, label='1st cluster test')
 
     plt.scatter(x_c2_train[:, 0], x_c2_train[:, 1], color = 'blue', marker = '+', label='2nd cluster train')
-    plt.scatter(x_c2_test[:, 0], x_c2_test[:, 1], color = 'blue', marker = 's', label='2nd cluster test')
+    plt.scatter(x_c2_test[:, 0], x_c2_test[:, 1], color = 'blue', marker = 'o', s = 8, label='2nd cluster test')
 
     plt.scatter(x_ood[:, 0], x_ood[:, 1], color = 'purple', label = 'OOD samples')
 
@@ -66,14 +67,40 @@ def make_data():
     plt.xlim([-15, 15])
     plt.ylim([-15, 15])
     plt.tight_layout()
+    ax = plt.gca()
+    ax.add_patch(Rectangle((-5, -5),
+                        5, 5,
+                        fc='none',
+                        color ='green',
+                        linewidth = 3))
+    
+    ax.add_patch(Rectangle((5.5, 1),
+                    5, 5,
+                    fc='none',
+                    color ='green',
+                    linewidth = 3))
+
     plt.savefig('train_test_data.pdf')
+
+    n_meshes = 100
+    x1, x2 = np.meshgrid(np.linspace(-5, 0, n_meshes), np.linspace(-5, 0, n_meshes))
+    x_mesh_1 = np.concatenate((x1.reshape(-1, 1), x2.reshape(-1, 1)), axis = 1)
+    y_mesh_1 = math_fun(x_mesh_1).reshape(-1, 1).flatten()
+
+    n_meshes = 100
+    x1, x2 = np.meshgrid(np.linspace(5.5, 10.5, n_meshes), np.linspace(1, 6, n_meshes))
+    x_mesh_2 = np.concatenate((x1.reshape(-1, 1), x2.reshape(-1, 1)), axis = 1)
+    y_mesh_2 = math_fun(x_mesh_2).reshape(-1, 1).flatten()
+
+    x_mesh = np.concatenate((x_mesh_1, x_mesh_2), axis = 0)
+    y_mesh = np.concatenate((y_mesh_1, y_mesh_2), axis = 0)
 
     n_meshes = 200
     x1, x2 = np.meshgrid(np.linspace(-15, 15, n_meshes), np.linspace(-15, 15, n_meshes))
-    x_mesh = np.concatenate((x1.reshape(-1, 1), x2.reshape(-1, 1)), axis = 1)
-    y_mesh = math_fun(x_mesh).reshape(-1, 1).flatten()
+    x_mesh_full = np.concatenate((x1.reshape(-1, 1), x2.reshape(-1, 1)), axis = 1)
+    y_mesh_full = math_fun(x_mesh_full).reshape(-1, 1).flatten()
 
-    return x_train, x_test, y_train, y_test, x_ood, y_ood, x_mesh, y_mesh
+    return x_train, x_test, y_train, y_test, x_ood, y_ood, x_mesh, y_mesh, x_mesh_full, y_mesh_full
 
 #### Create figures to visualize the uncertainty produced by the ML model
 def plot_uncertainty_map(x_train, x_ood, x_mesh, output_std, filename, spectral_normalization = False, contour=False):
@@ -150,5 +177,7 @@ def plot_calibration_curve(expected_confidences, observed_confidences, model_nam
     ax.set_aspect('equal')
 
     plt.savefig(model_name + '_calibration_curve.pdf', bbox_inches='tight')
+
+
 
 
