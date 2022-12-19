@@ -7,6 +7,9 @@ from ignite.engine import Events, Engine
 from ignite.metrics import Average, Loss
 from ignite.contrib.handlers import ProgressBar
 
+from sklearn.metrics import mean_squared_error
+import pandas as pd
+
 import gpytorch
 from gpytorch.mlls import VariationalELBO
 from gpytorch.likelihoods import GaussianLikelihood
@@ -19,7 +22,8 @@ from utils import *
 
 np.random.seed(1)
 
-x_train, x_test, y_train, y_test, x_ood, y_ood, x_mesh, y_mesh = make_data()
+x_train, x_test, y_train, y_test, x_ood, y_ood, x_mesh, y_mesh, x_mesh_full, y_mesh_full = make_data()
+np.save('y_mesh', y_mesh)
 
 torch.manual_seed(0)
 n_samples = x_train.shape[0]
@@ -36,8 +40,8 @@ print(f"Training with {n_samples} datapoints for {epochs} epochs")
 
 ### DNN-GP and SNGP model training and performance verification
 input_dim = 2
-features = 128
-depth = 6
+features = 64
+depth = 4
 num_outputs = 1 # regression with 1D output
 spectral_normalization = False
 coeff = 0.95
@@ -45,9 +49,9 @@ n_power_iterations = 1
 dropout_rate = 0.01
 
 if spectral_normalization:
-    model_name = 'SNGP'
+    model_name = 'SNGP_'
 else:
-    model_name = 'DNN_GP'
+    model_name = 'DNN_GP_'
 
 print (model_name)
 
@@ -135,8 +139,8 @@ metric.attach(evaluator, "loss")
 def log_results(trainer):
     evaluator.run(dl_test)
     print(f"Results - Epoch: {trainer.state.epoch} - "
-          f"Test Likelihood: {evaluator.state.metrics['loss']:.2f} - "
-          f"Loss: {trainer.state.metrics['loss']:.2f}")
+        f"Test Likelihood: {evaluator.state.metrics['loss']:.2f} - "
+        f"Loss: {trainer.state.metrics['loss']:.2f}")
     
 @trainer.on(Events.EPOCH_STARTED)
 def reset_precision_matrix(trainer):
@@ -145,7 +149,22 @@ def reset_precision_matrix(trainer):
 trainer.run(dl_train, max_epochs=epochs)
 model.eval()
 
+torch.save(model.state_dict(), model_name)
+
 #### Create meshes to visualize the uncertainty of SNGP model
+with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
+    xx = torch.tensor(x_mesh_full).float()
+    if torch.cuda.is_available():
+        xx = xx.cuda()
+    pred = model(xx)
+
+    mean = pred[0].squeeze().cpu()
+    output_var = pred[1].diagonal()
+    std = output_var.sqrt().cpu()
+
+plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, model_name, spectral_normalization, True)
+plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, model_name, spectral_normalization, False)
+
 with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
     xx = torch.tensor(x_mesh).float()
     if torch.cuda.is_available():
@@ -155,9 +174,6 @@ with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
     mean = pred[0].squeeze().cpu()
     output_var = pred[1].diagonal()
     std = output_var.sqrt().cpu()
-
-plot_uncertainty_map(x_train, x_ood, x_mesh, std, 'SNGP_uncertainty', True)
-plot_uncertainty_map(x_train, x_ood, x_mesh, std, 'SNGP_uncertainty', True, True)
 
 expected_confidences, observed_confidences = calculate_calibration(mean, std, y_mesh)
 plot_calibration_curve(expected_confidences, observed_confidences, model_name)
