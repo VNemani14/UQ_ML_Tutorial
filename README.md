@@ -4,19 +4,14 @@
 The goal of the study is to compare several ML models and their uncertainty quantification capability for Engineering Design and Prognostics
 
 Methods explored are:
-- Gaussian Process Regression (GP): (add citation)
-- Deep Ensemble (DE): [Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. "Simple and scalable predictive uncertainty estimation using deep ensembles." Advances in neural information processing systems 30 (2017).](https://doi.org/10.48550/arXiv.1612.01474)
-- Bayesian Neural Networks (BN): (add citation)
+- Gaussian Process Regression (GP): [Rasmussen, Carl Edward, and Christopher KI Williams. "Gaussian processes in machine learning." Lecture notes in computer science 3176 (2004): 63-71.](https://gaussianprocess.org/gpml/)
+- Neural Network Ensemble (NNE): [Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. "Simple and scalable predictive uncertainty estimation using deep ensembles." Advances in neural information processing systems 30 (2017).](https://doi.org/10.48550/arXiv.1612.01474)
 - Monte Carlo Dropout (MC): [Gal, Yarin, and Zoubin Ghahramani. "Dropout as a bayesian approximation: Representing model uncertainty in deep learning." international conference on machine learning. PMLR, 2016.](https://doi.org/10.48550/arXiv.1506.02142)
-- Spectral-normalized Neural Gaussian Process (SNGP): (add citation)
+- Spectral-normalized Neural Gaussian Process (SNGP): [Liu, Jeremiah, et al. "Simple and principled uncertainty estimation with deterministic deep learning via distance awareness." Advances in Neural Information Processing Systems 33 (2020): 7498-7512.](https://doi.org/10.48550/arXiv.2006.10108)
 
-These methods are evaluated on three different case studies. 
+These methods are evaluated on two different case studies. 
 
-### Case Study 1: Design case study (Design)
-
-(TBD)
-
-### Case Study 2: Battery early life prediction (PHM)
+### Case Study 1: Battery early life prediction
 The dataset for this case study was adopted from 
 - [Severson, Kristen A., et al. "Data-driven prediction of battery cycle life before capacity degradation." Nature Energy 4.5 (2019): 383-391.](https://doi.org/10.1038/s41560-019-0356-8)
 - [Attia, Peter M., et al. "Closed-loop optimization of fast-charging protocols for batteries with machine learning." Nature 578.7795 (2020): 397-402.](https://doi.org/10.1038/s41586-020-1994-5)
@@ -29,16 +24,32 @@ The dataset can be summarized as follows
 | Test2       | 40        |
 | Test3       | 45        |
 
-![image](https://user-images.githubusercontent.com/94071944/196048824-a9ad0151-fcb8-4b66-97cb-88b125c6c538.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/94071944/219260555-eaa88b4c-f47b-4302-82eb-1bc9365104e8.png" height="408" alt="capacity_curves" />
+</p>
 
-`Case_Study_2\Dataset` consists of
+`Case_Study_1\Dataset` consists of
 - `cycle_lives`: which has cycle lives of all of the cells
 - `discharge_capacity`: which contains the capacity trajectory for all the cells. The file format is a `.csv` with columns `cycle number`, `capacity`, `initial capacity`
 - `V_Q_curve`: with information of VQ curves starting from cycle 2 to 150. Each cell's data is stored as a `.csv` of size 1000x149 where the 1000 rows represent linearly spaced points from 3.5V to 2.0V (We use ***VQ(cycle=100)-VQ(cycle=10)*** to determine the total cycle life)
 
-`Case_Study_2\UQ_models_train_evaluate.ipynb`: a simple to follow notebook that shows the implementation and evaluation of all the uncertainty quantification models
+`Case_Study_1\UQ_models_train_evaluate_FinalSNGP.ipynb`: a simple to follow notebook that shows the implementation and evaluation of SNGP
 
-### Case Study 3: Turbofan engine prognostics (PHM)
+`Case_Study_1\UQ_models_train_evaluate_Final-Resnet.ipynb`: a simple to follow notebook that shows the implementation and evaluation of GP, NNE and MC uncertainty quantification models. Also includes postprocessing/comparison of all the models.
+
+All the models are built upon a ResNet-like architecture as shown below
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/94071944/219261221-ac562a0f-f41f-44db-8405-b16780c60de4.png" height="408" alt="UQ model architectures" />
+</p>
+
+
+These UQ models are compared in terms of
+- RUL prediction accuracy (RMSE)
+- Negative log-likelihood (NLL)
+- Calibration curves and expected calibration error (ECE)
+
+
+### Case Study 2: Turbofan engine prognostics (PHM)
 To enable fast data processing we make use of the code of [https://github.com/mohyunho/N-CMAPSS_DL][mohyunho] that we can quickly call via a submodule:
 ```
 git submodule update --init
