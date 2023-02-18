@@ -11,6 +11,17 @@ Methods explored are:
 
 These methods are evaluated on two different case studies. 
 
+## Case Studies:
+UQ methods are applied to two case studies
+- Case study 1: Battery early life prediction
+- Case study 2: Turbofan engine prognostics
+
+All the models are built upon a ResNet-like architecture as shown below
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/94071944/219261221-ac562a0f-f41f-44db-8405-b16780c60de4.png" height="408" alt="UQ model architectures" />
+</p>
+
+
 ### Case Study 1: Battery early life prediction
 The dataset for this case study was adopted from 
 - [Severson, Kristen A., et al. "Data-driven prediction of battery cycle life before capacity degradation." Nature Energy 4.5 (2019): 383-391.](https://doi.org/10.1038/s41560-019-0356-8)
@@ -37,10 +48,6 @@ The dataset can be summarized as follows
 
 `Case_Study_1\UQ_models_train_evaluate_Final-Resnet.ipynb`: a simple to follow notebook that shows the implementation and evaluation of GP, NNE and MC uncertainty quantification models. Also includes postprocessing/comparison of all the models.
 
-All the models are built upon a ResNet-like architecture as shown below
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/94071944/219261221-ac562a0f-f41f-44db-8405-b16780c60de4.png" height="408" alt="UQ model architectures" />
-</p>
 
 
 These UQ models are compared in terms of
