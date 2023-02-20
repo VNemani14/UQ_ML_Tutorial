@@ -17,13 +17,11 @@ from gpytorch.likelihoods import GaussianLikelihood
 from dkl import DKL, GP, initial_values
 from sngp import Laplace
 from fc_resnet import FCResNet
-
 from utils import *
 
 np.random.seed(1)
 
 x_train, x_test, y_train, y_test, x_ood, y_ood, x_mesh, y_mesh, x_mesh_full, y_mesh_full = make_data()
-np.save('y_mesh', y_mesh)
 
 torch.manual_seed(0)
 n_samples = x_train.shape[0]
@@ -35,7 +33,7 @@ dl_train = torch.utils.data.DataLoader(ds_train, batch_size=batch_size, shuffle=
 ds_test = torch.utils.data.TensorDataset(torch.from_numpy(x_test).float(), torch.from_numpy(y_test).float())
 dl_test = torch.utils.data.DataLoader(ds_test, batch_size=512, shuffle=False)
 
-epochs = 8000
+epochs = 6000
 print(f"Training with {n_samples} datapoints for {epochs} epochs")
 
 ### DNN-GP and SNGP model training and performance verification
@@ -43,15 +41,15 @@ input_dim = 2
 features = 64
 depth = 4
 num_outputs = 1 # regression with 1D output
-spectral_normalization = False
+spectral_normalization = True
 coeff = 0.95
 n_power_iterations = 1
 dropout_rate = 0.01
 
 if spectral_normalization:
-    model_name = 'SNGP_'
+    model_name = 'SNGP_uncertainty'
 else:
-    model_name = 'DNN_GP_'
+    model_name = 'DNNGP_uncertainty'
 
 print (model_name)
 
@@ -149,8 +147,6 @@ def reset_precision_matrix(trainer):
 trainer.run(dl_train, max_epochs=epochs)
 model.eval()
 
-torch.save(model.state_dict(), model_name)
-
 #### Create meshes to visualize the uncertainty of SNGP model
 with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
     xx = torch.tensor(x_mesh_full).float()
@@ -162,18 +158,4 @@ with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
     output_var = pred[1].diagonal()
     std = output_var.sqrt().cpu()
 
-plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, model_name, spectral_normalization, True)
-plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, model_name, spectral_normalization, False)
-
-with torch.no_grad(), gpytorch.settings.num_likelihood_samples(10):
-    xx = torch.tensor(x_mesh).float()
-    if torch.cuda.is_available():
-        xx = xx.cuda()
-    pred = model(xx)
-
-    mean = pred[0].squeeze().cpu()
-    output_var = pred[1].diagonal()
-    std = output_var.sqrt().cpu()
-
-expected_confidences, observed_confidences = calculate_calibration(mean, std, y_mesh)
-plot_calibration_curve(expected_confidences, observed_confidences, model_name)
+plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, model_name, spectral_normalization)

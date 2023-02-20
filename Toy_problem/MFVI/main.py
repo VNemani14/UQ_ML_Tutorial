@@ -28,4 +28,4 @@ train_model(BNN_VI, n_layers, optbnn1, elbo_loss, n_epochs, no_samples,
 mu, std = make_predictions(BNN_VI, torch.Tensor(x_mesh_full).to(device), variance = 'constant')
 mu, std = mu.cpu().detach().numpy(), std.cpu().detach().numpy()
 
-plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, 'VI', False, False)
+plot_uncertainty_map(x_train, x_ood, x_mesh_full, std, 'VI_uncertainty', False, False)

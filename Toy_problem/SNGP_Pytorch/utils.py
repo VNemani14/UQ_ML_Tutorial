@@ -3,7 +3,7 @@ import scipy
 import numpy as np
 from sklearn.model_selection import train_test_split
 import seaborn as sns
-from matplotlib.patches import Rectangle
+import os
 
 sns.set(font_scale=1.6)
 sns.set_theme(style='white')
@@ -67,18 +67,6 @@ def make_data():
     plt.xlim([-15, 15])
     plt.ylim([-15, 15])
     plt.tight_layout()
-    ax = plt.gca()
-    ax.add_patch(Rectangle((-5, -5),
-                        5, 5,
-                        fc='none',
-                        color ='green',
-                        linewidth = 3))
-    
-    ax.add_patch(Rectangle((5.5, 1),
-                    5, 5,
-                    fc='none',
-                    color ='green',
-                    linewidth = 3))
 
     plt.savefig('train_test_data.pdf')
 
