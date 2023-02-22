@@ -6,7 +6,7 @@ The functional relationship between the output $y$ and the input vector $\textbf
 $$ y(\textbf{x}) = \frac{1}{20}((1.5+x_1)^2+4)\times(1.5+x_2)-sin \frac{5\times(1.5+x_1)}{2}$$
 
 - `Implement_GP_MC_NNE.ipynb`: consists the implementation of GPR, MC dropout and neural network ensemble
-- `Implement_SNGP_DNNGP.ipynb`: consists the implementation of SNGP and DNN-GP
+- `Implement_SNGP_DNNGP.ipynb`: consists the implementation of SNGP and DNN-GP. Toggle between SNNGP and DNNGP using the `spectral_normalization` variable.
 - `SNGP_Pytorch`: SNGP implementation using PyTorch
 - `Other_implementation`: Similar code in .py format
 
