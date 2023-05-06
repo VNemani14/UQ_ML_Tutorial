@@ -1,5 +1,5 @@
-# Uncertainty Quantification in Machine Learning for Engineering Design and Health Prognostics: A Comprehensive Review
-(Code repository for the above titled review paper)
+# Uncertainty Quantification in Machine Learning for Engineering Design and Health Prognostics: A Tutorial
+(Code repository for the above titled paper)
 
 The goal of the study is to compare several ML models and their uncertainty quantification capability for Engineering Design and Prognostics
 
