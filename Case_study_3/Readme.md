@@ -1,5 +1,5 @@
 ### Case Study 2: Turbofan engine prognostics (PHM)
-To enable fast data processing we make use of the code of [https://github.com/mohyunho/N-CMAPSS_DL][mohyunho] that we can quickly call via a submodule:
+To enable fast data processing we make use of the code of [mohyunho](https://github.com/mohyunho/N-CMAPSS_DL) that we can quickly call via a submodule:
 ```
 git submodule update --init
 cd N-CMAPSS_DL/
